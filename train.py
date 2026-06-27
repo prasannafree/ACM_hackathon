@@ -176,6 +176,10 @@ def main():
 
     print(f"  Val Loss:       {val_results['loss']:.4f}")
     print(f"  Val Accuracy:   {val_results['accuracy']:.2f}%")
+    print(f"  Val F1-Score:   {val_results['f1']:.4f}")
+    print(f"  Val Precision:  {val_results['precision']:.4f}")
+    print(f"  Val Recall:     {val_results['recall']:.4f}")
+    print(f"  Inference Time: {val_results['inference_time_s']:.2f}s")
 
     # ── Summary ──
     results = {
@@ -189,7 +193,11 @@ def main():
         "train_accuracy": round(train_results["accuracy"], 2),
         "val_loss": round(val_results["loss"], 4),
         "val_accuracy": round(val_results["accuracy"], 2),
+        "f1_score": round(val_results["f1"], 4),
+        "precision": round(val_results["precision"], 4),
+        "recall": round(val_results["recall"], 4),
         "train_time_s": round(train_time, 1),
+        "inference_time_s": round(val_results["inference_time_s"], 2),
     }
 
     print(f"\n{'='*60}")

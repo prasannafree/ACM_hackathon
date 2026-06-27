@@ -69,10 +69,14 @@ class CustomModelTrainer:
         total_mini_batches = 0
         float_epochs = 0.0
         data_entries = max(len(train_loader), 1)
+        last_print_time = time.time()
 
         try:
             for epoch in range(epochs):
                 num_mini_batches = 0
+                total_loss = 0.0
+                correct = 0
+                total = 0
                 for train_x, train_label in train_loader:
                     if timeout_s and (time.time() - start_time) > timeout_s:
                         break
@@ -93,6 +97,14 @@ class CustomModelTrainer:
                     total_mini_batches += 1
                     num_mini_batches += 1
                     float_epochs = epoch + (num_mini_batches / data_entries)
+                    
+                    if time.time() - last_print_time >= 60.0:
+                        print(f"  [Progress] Epoch [{epoch + 1}/{epochs}], Batch [{num_mini_batches}/{data_entries}], "
+                              f"Loss: {total_loss / max(total, 1):.4f}, Accuracy: {100.0 * correct / max(total, 1):.2f}%")
+                        last_print_time = time.time()
+
+                if (epoch + 1) % 10 == 0:
+                    print(f"  Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / max(total, 1):.4f}, Accuracy: {100.0 * correct / max(total, 1):.2f}%")
 
                 if timeout_s and (time.time() - start_time) > timeout_s:
                     break
@@ -135,7 +147,10 @@ class CustomModelTrainer:
         correct = 0
         count = 0
         batches = 0
+        all_preds = []
+        all_labels = []
 
+        start_time = time.time()
         with torch.no_grad():
             for i, (x_batch, y_batch) in enumerate(dataloader):
                 x_batch = x_batch.to(device, non_blocking=True)
@@ -143,14 +158,28 @@ class CustomModelTrainer:
                 y_pred = model(x_batch)
                 loss = cost(y_pred, y_batch)
                 total_loss += loss.item() * y_batch.size(0)
-                correct += (y_pred.argmax(1) == y_batch).sum().item()
+                preds = y_pred.argmax(1)
+                correct += (preds == y_batch).sum().item()
                 count += y_batch.size(0)
                 batches = i + 1
+                all_preds.extend(preds.cpu().numpy())
+                all_labels.extend(y_batch.cpu().numpy())
+
+        inference_time = time.time() - start_time
+
+        from sklearn.metrics import precision_recall_fscore_support
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            all_labels, all_preds, average='macro', zero_division=0
+        )
 
         model.train()
         res = {
             "accuracy": 100.0 * correct / max(count, 1),
             "loss": total_loss / max(count, 1),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1": float(f1),
+            "inference_time_s": inference_time,
         }
         print(f"CustomModelTrainer.validate_model round={round_no} res={res}")
         return res
