@@ -1,0 +1,26 @@
+model_details:
+  model_id: AlexNet
+  model_class: AlexNet
+  model_tags: [CNN]
+  suitable_datasets: [DATASET_1, DATASET_2, CIFAR10]
+
+default_training_config:
+  use_custom_dataloader: True
+  custom_loader_args:
+    img_size: 224
+    val_frac: 0.05
+    num_workers: 4
+
+  use_custom_trainer: True
+  custom_trainer_args:
+    lr: 0.01
+    optimizer: sgd
+    momentum: 0.9
+    weight_decay: 0.0005
+
+  use_custom_validator: True
+  custom_validator_args: {}
+
+  model_args:
+    num_classes: 10
+    dropout: 0.5

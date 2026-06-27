@@ -1,0 +1,6 @@
+model,datasets,epochs,batch_size,device,params_M,train_loss,train_accuracy,val_loss,val_accuracy,train_time_s
+AlexNet,DATASET_1,10,64,cuda,57.04,0.9243,67.15,0.5598,80.88,130.4
+AlexNet,DATASET_1,20,64,cuda,57.04,0.6786,76.17,0.4583,84.84,263.1
+AlexNet,DATASET_1,30,64,cuda,57.04,0.5545,80.61,0.4046,86.44,395.9
+AlexNet,DATASET_1,40,64,cuda,57.04,0.4866,83.01,0.4658,86.12,529.5
+AlexNet,DATASET_1,50,64,cuda,57.04,0.4365,84.8,0.464,86.32,661.9
